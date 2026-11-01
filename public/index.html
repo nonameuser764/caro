@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Caro Online</title>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, sans-serif;
+            color: #eef;
+            background: radial-gradient(circle at 20% 0, #2b2370, #0c0b22 70%);
+            display: flex;
+            justify-content: center
+        }
+        
+        #app {
+            width: 100%;
+            max-width: 520px;
+            padding: 18px
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 8px 0 18px;
+            font-size: 34px;
+            background: linear-gradient(90deg, #ff7ab8, #7aa8ff);
+            -webkit-background-clip: text;
+            color: transparent
+        }
+        
+        .card {
+            background: #ffffff12;
+            border: 1px solid #ffffff22;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(6px)
+        }
+        
+        input {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid #ffffff33;
+            background: #00000040;
+            color: #fff;
+            font-size: 17px;
+            margin: 8px 0
+        }
+        
+        button {
+            cursor: pointer;
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 18px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #7a5cff, #ff5c9a);
+            transition: .15s
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1)
+        }
+        
+        button.sec {
+            background: #ffffff22
+        }
+        
+        .big {
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+            margin-bottom: 10px
+        }
+        
+        .row {
+            display: flex;
+            gap: 10px
+        }
+        
+        .row>* {
+            flex: 1
+        }
+        
+        .av {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #ffffff22;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex: none;
+            overflow: hidden
+        }
+        
+        .av.l {
+            width: 64px;
+            height: 64px;
+            font-size: 38px
+        }
+        
+        .avs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0
+        }
+        
+        .avs .av {
+            cursor: pointer;
+            border: 3px solid transparent
+        }
+        
+        .avs .av.sel {
+            border-color: #ffd54a
+        }
+        
+        .me {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+        
+        .lb div.it {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffffff15
+        }
+        
+        .lb .rk {
+            width: 28px;
+            font-weight: 800;
+            color: #ffd54a
+        }
+        
+        .lb .nm {
+            flex: 1
+        }
+        
+        .lb .st {
+            font-weight: 800
+        }
+        
+        .hide {
+            display: none!important
+        }
+        
+        .err {
+            color: #ff8a8a;
+            min-height: 20px;
+            font-size: 14px
+        }
+        
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: #000a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            padding: 18px
+        }
+        
+        .modal .card {
+            background: #241f55;
+            width: 100%;
+            max-width: 420px;
+            max-height: 85vh;
+            overflow: auto
+        }
+        
+        .pl {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px
+        }
+        
+        .p {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 14px;
+            background: #ffffff12;
+            border: 2px solid transparent
+        }
+        
+        .p.turn {
+            border-color: #ffd54a;
+            box-shadow: 0 0 18px #ffd54a66
+        }
+        
+        .p small {
+            display: block;
+            opacity: .8
+        }
+        
+        .mk {
+            font-weight: 900;
+            font-size: 20px
+        }
+        
+        #board {
+            display: grid;
+            gap: 6px;
+            margin: 0 auto;
+            width: min(92vw, 440px)
+        }
+        
+        .c {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: #ffffff14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: min(14vw, 64px);
+            font-weight: 900;
+            cursor: pointer
+        }
+        
+        .c:hover {
+            background: #ffffff26
+        }
+        
+        .c.X {
+            color: #ff6b9a;
+            text-shadow: 0 0 14px #ff6b9a
+        }
+        
+        .c.O {
+            color: #6bd0ff;
+            text-shadow: 0 0 14px #6bd0ff
+        }
+        
+        .c.pop {
+            animation: pop .25s
+        }
+        
+        .c.win {
+            background: #ffd54a55;
+            animation: glow .7s infinite alternate
+        }
+        
+        @keyframes pop {
+            from {
+                transform: scale(.3)
+            }
+            to {
+                transform: scale(1)
+            }
+        }
+        
+        @keyframes glow {
+            to {
+                box-shadow: 0 0 22px #ffd54a;
+                transform: scale(1.06)
+            }
+        }
+        
+        #status {
+            text-align: center;
+            margin: 12px 0;
+            font-size: 18px;
+            font-weight: 700;
+            min-height: 26px
+        }
+        
+        #over {
+            position: fixed;
+            inset: 0;
+            z-index: 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px
+        }
+        
+        #over.win {
+            background: radial-gradient(circle, #ffb300cc, #7a2fd0ee)
+        }
+        
+        #over.lose {
+            background: radial-gradient(circle, #3b0a0acc, #050208f5);
+            animation: shake .5s 2
+        }
+        
+        #over.draw {
+            background: #223a
+        }
+        
+        #over h2 {
+            font-size: clamp(40px, 12vw, 76px);
+            margin: 10px 0;
+            letter-spacing: 2px
+        }
+        
+        #over.win h2 {
+            color: #fff;
+            text-shadow: 0 0 30px #ffe066, 0 0 60px #ff9d00;
+            animation: zoom 1s infinite alternate
+        }
+        
+        #over.lose h2 {
+            color: #ff3b3b;
+            text-shadow: 0 0 25px #900;
+            animation: fall 1.2s
+        }
+        
+        #over .emo {
+            font-size: 90px;
+            animation: zoom 1.2s infinite alternate
+        }
+        
+        #over canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none
+        }
+        
+        #over>*:not(canvas) {
+            position: relative
+        }
+        
+        @keyframes zoom {
+            from {
+                transform: scale(.92) rotate(-2deg)
+            }
+            to {
+                transform: scale(1.08) rotate(2deg)
+            }
+        }
+        
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+            25% {
+                transform: translateX(-14px)
+            }
+            75% {
+                transform: translateX(14px)
+            }
+        }
+        
+        @keyframes fall {
+            from {
+                transform: translateY(-120px);
+                opacity: 0
+            }
+            to {
+                transform: none;
+                opacity: 1
+            }
+        }
+        
+        .ni {
+            width: 72px!important;
+            padding: 6px!important;
+            margin: 0!important;
+            font-size: 14px!important;
+            text-align: center
+        }
+        
+        .ad {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #ffffff15;
+            font-size: 14px
+        }
+        
+        .ad span {
+            flex: 1
+        }
+        
+        .ad button {
+            padding: 5px 9px;
+            font-size: 12px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>⭕ CARO ONLINE ❌</h1>
+
+        <!-- Đăng ký -->
+        <div id="s-login" class="card hide">
+            <b>Tạo tài khoản</b>
+            <input id="name" maxlength="16" placeholder="Nhập tên của bạn">
+            <div>Chọn ảnh đại diện:</div>
+            <div class="avs" id="avs"></div>
+            <div class="row"><button class="sec" onclick="file.click()">📷 Tải ảnh lên</button><button onclick="doLogin()">Vào chơi</button></div>
+            <input type="file" id="file" accept="image/*" class="hide">
+            <div class="err" id="lerr"></div>
+            <div style="text-align:center"><a href="#" style="color:#aab;font-size:13px" onclick="adminLogin();return false">Đăng nhập Admin</a></div>
+        </div>
+
+        <!-- Sảnh -->
+        <div id="s-lobby" class="hide">
+            <div class="card me" id="meCard"></div>
+            <button class="big" onclick="show('m-size')">🎮 Tạo phòng</button>
+            <button class="big sec" onclick="show('m-join')">🔑 Nhập mã phòng</button>
+            <button class="big sec hide" id="adminBtn" onclick="openAdmin()">🛠 Quản trị</button>
+            <div class="card lb"><b>🏆 Bảng xếp hạng chuỗi thắng cao nhất</b>
+                <div id="lb"></div>
+            </div>
+            <button class="sec" onclick="logout()">Đăng xuất</button>
+        </div>
+
+        <!-- Phòng -->
+        <div id="s-room" class="hide">
+            <div class="card" style="text-align:center">Mã phòng: <b style="font-size:26px;letter-spacing:6px" id="rcode"></b> · <span id="rinfo"></span></div>
+            <div class="pl" id="pl"></div>
+            <div id="board"></div>
+            <div id="bwrap" class="hide" style="position:relative;width:min(92vw,520px);margin:0 auto">
+                <canvas id="bc" style="width:100%;aspect-ratio:1;border-radius:14px;background:#14123a;touch-action:none;cursor:grab;display:block"></canvas>
+                <div style="position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px">
+                    <button class="sec" style="padding:6px 12px" onclick="zoom(1.25)">＋</button>
+                    <button class="sec" style="padding:6px 12px" onclick="zoom(.8)">－</button>
+                    <button class="sec" style="padding:6px 12px" onclick="recenter()">◎</button>
+                </div>
+            </div>
+            <div id="status"></div>
+            <div class="row"><button class="sec" onclick="leave()">🚪 Rời phòng</button><button id="rematch" class="hide" onclick="rematch()">🔁 Chơi lại</button></div>
+        </div>
+    </div>
+
+    <div id="m-size" class="modal hide">
+        <div class="card"><b>Chọn cỡ bàn</b><br><br>
+            <button class="big" onclick="createRoom(3)">3 x 3 <small></small></button>
+            <button class="big" onclick="createRoom('inf')"> 5 x 5<small></small>
+            <button class="sec big" onclick="hideM()">Hủy</button></div>
+    </div>
+    <div id="m-join" class="modal hide">
+        <div class="card"><b>Nhập mã phòng (4 số)</b>
+            <input id="jcode" inputmode="numeric" maxlength="4" placeholder="0000">
+            <div class="err" id="jerr"></div>
+            <div class="row"><button class="sec" onclick="hideM()">Hủy</button><button onclick="joinRoom()">Vào phòng</button></div>
+        </div>
+    </div>
+    <div id="m-admin" class="modal hide">
+        <div class="card"><b>🛠 Quản trị</b>
+            <div id="adm"></div><br><button class="sec big" onclick="hideM()">Đóng</button></div>
+    </div>
+    <div id="over" class="hide"></div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[c]));
+        let token = localStorage.token || '',
+            me = null,
+            room = null,
+            es = null,
+            avatar = '😀',
+            shownGame = 0,
+            lbT = null;
+        const EMOJI = ['😀', '😎', '🤖', '👻', '🦊', '🐱', '🐼', '🐯', '🦄', '🐸', '👽', '🔥'];
+
+        async function api(p, b) {
+            const o = b === undefined ? {} : {
+                method: 'POST',
+                body: JSON.stringify(b)
+            };
+            try {
+                const r = await fetch(p, {...o,
+                    headers: {
+                        'x-token': token
+                    }
+                });
+                let d = {};
+                try {
+                    d = await r.json()
+                } catch (e) {}
+                d._ok = r.ok;
+                return d;
+            } catch (e) {
+                return {
+                    _ok: false,
+                    _net: true,
+                    error: 'Không kết nối được tới server. Hãy chạy "node server.js" rồi mở http://localhost:3000 (đừng mở thẳng file index.html).'
+                };
+            }
+        }
+        const av = (a, c = '') => a && a.startsWith('data:') ? `<img class="av ${c}" src="${a}">` : `<span class="av ${c}">${esc(a||'🙂')}</span>`;
+
+        function showScreen(id) {
+            ['s-login', 's-lobby', 's-room'].forEach(s => $(s).classList.toggle('hide', s !== id))
+        }
+
+        function show(id) {
+            $(id).classList.remove('hide')
+        }
+
+        function hideM() {
+            ['m-size', 'm-join', 'm-admin'].forEach(m => $(m).classList.add('hide'))
+        }
+
+        // ---------- Đăng nhập ----------
+        function drawAvs() {
+            $('avs').innerHTML = EMOJI.map(e => `<span class="av ${avatar===e?'sel':''}" onclick="avatar='${e}';drawAvs()">${e}</span>`).join('') + (avatar.startsWith('data:') ? `<img class="av sel" src="${avatar}">` : '')
+        }
+        $('file').onchange = e => {
+            const f = e.target.files[0];
+            if (!f) return;
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = c.height = 96;
+                const x = c.getContext('2d');
+                const s = Math.min(img.width, img.height);
+                x.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 96, 96);
+                avatar = c.toDataURL('image/jpeg', .8);
+                drawAvs();
+            };
+            img.src = URL.createObjectURL(f);
+        };
+        async function doLogin() {
+            const d = await api('/api/login', {
+                name: $('name').value,
+                avatar,
+                token
+            });
+            if (!d._ok) {
+                $('lerr').textContent = d.error || 'Lỗi';
+                return
+            }
+            token = localStorage.token = d.token;
+            me = d.me;
+            toLobby();
+        }
+        async function adminLogin() {
+            const p = prompt('Mật khẩu admin:');
+            if (!p) return;
+            const d = await api('/api/admin-login', {
+                password: p
+            });
+            if (!d._ok) {
+                alert(d.error);
+                return
+            }
+            token = localStorage.token = d.token;
+            me = d.me;
+            toLobby();
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('room');
+            token = '';
+            location.reload()
+        }
+
+        // ---------- Sảnh ----------
+        function toLobby() {
+            closeRoomStream();
+            localStorage.removeItem('room');
+            room = null;
+            $('over').classList.add('hide');
+            showScreen('s-lobby');
+            renderMe();
+            loadLb();
+            $('adminBtn').classList.toggle('hide', !me.admin);
+            clearInterval(lbT);
+            lbT = setInterval(() => {
+                loadLb();
+                refreshMe()
+            }, 10000);
+        }
+
+        function renderMe() {
+            $('meCard').innerHTML = av(me.avatar, 'l') + `<div><b style="font-size:20px">${esc(me.name)}${me.admin?' 👑':''}</b><br>🔥 Chuỗi thắng: <b>${me.streak}</b> · Cao nhất: <b>${me.best}</b><br><small>Thắng ${me.wins} · Thua ${me.losses}</small></div>`
+        }
+        async function refreshMe() {
+            const d = await api('/api/me');
+            if (d.me) {
+                me = d.me;
+                if (!$('s-lobby').classList.contains('hide')) renderMe()
+            }
+        }
+        async function loadLb() {
+            const d = await api('/api/leaderboard');
+            $('lb').innerHTML = d.list && d.list.length ? d.list.map((u, i) => `<div class="it"><span class="rk">${i+1}</span>${av(u.avatar)}<span class="nm">${esc(u.name)}</span><span class="st">🔥 ${u.best}</span></div>`).join('') : '<p style="opacity:.7">Chưa có ai trên bảng xếp hạng</p>';
+        }
+        async function createRoom(size) {
+            const d = await api('/api/room/create', {
+                size
+            });
+            hideM();
+            if (d.code) enter(d.code);
+        }
+        async function joinRoom() {
+            const code = $('jcode').value.trim();
+            const d = await api('/api/room/join', {
+                code
+            });
+            if (!d._ok) {
+                $('jerr').textContent = d.error || 'Lỗi';
+                return
+            }
+            hideM();
+            enter(d.code);
+        }
+
+        // ---------- Phòng ----------
+        function closeRoomStream() {
+            if (es) {
+                es.close();
+                es = null
+            }
+        }
+
+        function enter(code) {
+            localStorage.room = code;
+            shownGame = 0;
+            showScreen('s-room');
+            clearInterval(lbT);
+            closeRoomStream();
+            es = new EventSource(`/api/events?code=${code}&token=${token}`);
+            es.onmessage = e => {
+                const r = JSON.parse(e.data);
+                if (r.closed) {
+                    alert('Phòng đã đóng');
+                    toLobby();
+                    return
+                }
+                room = r;
+                renderRoom()
+            };
+            es.onerror = () => {
+                if (es && es.readyState === 2) {
+                    toLobby()
+                }
+            };
+        }
+        const myIdx = () => room.players.findIndex(p => p && p.name === me.name);
+
+        function renderRoom() {
+            const r = room,
+                i = myIdx(),
+                isP = i >= 0;
+            $('rcode').textContent = r.code;
+            $('rinfo').textContent = `${r.inf?'♾️ Vô hạn':r.size+'x'+r.size} · 👁 ${r.viewers} đang có mặt`;
+            $('pl').innerHTML = [0, 1].map(k => {
+                const p = r.players[k];
+                return `<div class="p ${r.status==='playing'&&r.turn===k?'turn':''}">${p?av(p.avatar,'l'):'<div class="av l">?</div>'}<b>${p?esc(p.name):'Đang chờ...'}</b><small>🔥 ${p?p.streak:0}</small><span class="mk" style="color:${k?'#6bd0ff':'#ff6b9a'}">${k?'O':'X'}</span></div>`
+            }).join('');
+            $('board').classList.toggle('hide', !!r.inf);
+            $('bwrap').classList.toggle('hide', !r.inf);
+            if (r.inf) {
+                V.map = new Map(r.moves.map(m => [m[0] + ',' + m[1], m[2]]));
+                const lm = r.moves[r.moves.length - 1];
+                V.last = lm ? [lm[0], lm[1]] : null;
+                const id = r.code + ':' + r.game;
+                if (V.id !== id) {
+                    V.id = id;
+                    recenter(true)
+                }
+                drawInf();
+            } else {
+                const b = $('board');
+                b.style.gridTemplateColumns = `repeat(${r.size},1fr)`;
+                b.innerHTML = r.board.map((m, k) => `<div class="c ${m} ${r.line.includes(k)?'win':''}" onclick="move(${k})">${m}</div>`).join('');
+            }
+            let s = '';
+            if (r.status === 'waiting') s = `⏳ Chờ đối thủ... Chia sẻ mã <b>${r.code}</b>`;
+            else if (r.status === 'playing') {
+                s = isP ? (r.turn === i ? '👉 Đến lượt bạn!' : '⌛ Đối thủ đang nghĩ...') : `👀 Bạn đang quan sát · lượt của ${esc(r.players[r.turn].name)}`;
+                if (r.inf) s += '<br><small style="opacity:.7;font-weight:400">Kéo để di chuyển · lăn chuột để zoom · chạm vào ô để đánh</small>';
+            } else s = r.draw ? '🤝 Hòa!' : `🏁 ${esc(r.players.find(p=>p&&p.name&&r.winner===p.name.toLowerCase()).name)} thắng!`;
+            $('status').innerHTML = s;
+            $('rematch').classList.toggle('hide', !(isP && r.status === 'done' && !r.left && r.players[1]));
+            if (r.status === 'done' && isP && shownGame !== r.game) {
+                shownGame = r.game;
+                result(r)
+            }
+            if (r.status !== 'done') $('over').classList.add('hide');
+        }
+        // ---------- Bàn cờ vô hạn (canvas) ----------
+        const V = {
+            cx: .5,
+            cy: .5,
+            z: 42,
+            map: new Map(),
+            last: null,
+            id: ''
+        };
+
+        function drawInf() {
+            const c = $('bc'),
+                R = c.getBoundingClientRect(),
+                d = window.devicePixelRatio || 1;
+            if (!R.width || !room) return;
+            c.width = R.width * d;
+            c.height = R.height * d;
+            const x = c.getContext('2d');
+            x.setTransform(d, 0, 0, d, 0, 0);
+            const W = R.width,
+                H = R.height,
+                z = V.z;
+            const sx = a => (a - V.cx) * z + W / 2,
+                sy = b => (b - V.cy) * z + H / 2;
+            x.fillStyle = '#14123a';
+            x.fillRect(0, 0, W, H);
+            const x0 = Math.floor(V.cx - W / 2 / z),
+                x1 = Math.ceil(V.cx + W / 2 / z),
+                y0 = Math.floor(V.cy - H / 2 / z),
+                y1 = Math.ceil(V.cy + H / 2 / z);
+            x.strokeStyle = '#ffffff22';
+            x.lineWidth = 1;
+            x.beginPath();
+            for (let i = x0; i <= x1; i++) {
+                x.moveTo(sx(i), 0);
+                x.lineTo(sx(i), H)
+            }
+            for (let j = y0; j <= y1; j++) {
+                x.moveTo(0, sy(j));
+                x.lineTo(W, sy(j))
+            }
+            x.stroke();
+            if (room.line && room.line.length) {
+                x.fillStyle = '#ffd54a66';
+                room.line.forEach(([a, b]) => x.fillRect(sx(a), sy(b), z, z))
+            }
+            x.textAlign = 'center';
+            x.textBaseline = 'middle';
+            x.font = '900 ' + (z * .72) + 'px system-ui,sans-serif';
+            V.map.forEach((m, k) => {
+                const [a, b] = k.split(',').map(Number);
+                if (a < x0 || a > x1 || b < y0 || b > y1) return;
+                x.fillStyle = m === 'X' ? '#ff6b9a' : '#6bd0ff';
+                x.shadowColor = x.fillStyle;
+                x.shadowBlur = 10;
+                x.fillText(m, sx(a) + z / 2, sy(b) + z / 2 + z * .04);
+            });
+            x.shadowBlur = 0;
+            if (V.last) {
+                x.strokeStyle = '#ffd54a';
+                x.lineWidth = 2;
+                x.strokeRect(sx(V.last[0]) + 1, sy(V.last[1]) + 1, z - 2, z - 2)
+            }
+        }
+
+        function zoom(f) {
+            V.z = Math.max(16, Math.min(90, V.z * f));
+            drawInf()
+        }
+
+        function recenter(silent) {
+            if (V.last) {
+                V.cx = V.last[0] + .5;
+                V.cy = V.last[1] + .5
+            } else {
+                V.cx = .5;
+                V.cy = .5
+            }
+            if (!silent) drawInf();
+        }
+
+        function moveInf(x, y) {
+            if (room && room.inf && room.status === 'playing') api('/api/room/move', {
+                code: room.code,
+                x,
+                y
+            })
+        }
+        (function() {
+            const c = $('bc');
+            let drag = null;
+            c.onpointerdown = e => {
+                c.setPointerCapture(e.pointerId);
+                drag = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    cx: V.cx,
+                    cy: V.cy,
+                    moved: false
+                }
+            };
+            c.onpointermove = e => {
+                if (!drag) return;
+                const dx = e.clientX - drag.x,
+                    dy = e.clientY - drag.y;
+                if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+                if (drag.moved) {
+                    V.cx = drag.cx - dx / V.z;
+                    V.cy = drag.cy - dy / V.z;
+                    drawInf()
+                }
+            };
+            c.onpointerup = e => {
+                if (drag && !drag.moved) {
+                    const R = c.getBoundingClientRect();
+                    moveInf(Math.floor(V.cx + (e.clientX - R.left - R.width / 2) / V.z), Math.floor(V.cy + (e.clientY - R.top - R.height / 2) / V.z));
+                }
+                drag = null;
+            };
+            c.addEventListener('wheel', e => {
+                e.preventDefault();
+                zoom(e.deltaY < 0 ? 1.1 : .9)
+            }, {
+                passive: false
+            });
+            addEventListener('resize', () => {
+                if (room && room.inf) drawInf()
+            });
+        })();
+
+        function move(k) {
+            if (room && room.status === 'playing') api('/api/room/move', {
+                code: room.code,
+                i: k
+            })
+        }
+        async function rematch() {
+            $('over').classList.add('hide');
+            await api('/api/room/rematch', {
+                code: room.code
+            })
+        }
+        async function leave() {
+            if (room && room.status === 'playing' && myIdx() >= 0 && !confirm('Rời phòng giữa ván sẽ bị xử thua. Tiếp tục?')) return;
+            if (room) await api('/api/room/leave', {
+                code: room.code
+            });
+            toLobby();
+            refreshMe().then(loadLb);
+        }
+
+        // ---------- Màn hình thắng / thua ----------
+        async function result(r) {
+            const o = $('over');
+            const won = !r.draw && r.winner === me.name.toLowerCase();
+            await refreshMe();
+            o.className = r.draw ? 'draw' : won ? 'win' : 'lose';
+            o.innerHTML = `<canvas id="fx"></canvas>` + (r.draw ?
+                    `<div class="emo">🤝</div><h2>HÒA</h2><p>Trận đấu cân tài cân sức!</p>` :
+                    won ? `<div class="emo">🏆</div><h2>CHIẾN THẮNG!</h2><p style="font-size:24px">🔥 Chuỗi thắng: <b>${me.streak}</b></p>${r.left?'<p>Đối thủ đã bỏ cuộc</p>':''}` :
+                    `<div class="emo">💀</div><h2>THUA CUỘC</h2><p style="font-size:20px">Chuỗi thắng đã bị phá vỡ về 0...</p><p>Hãy gỡ lại nhé!</p>`) +
+                `<div class="row" style="width:100%;max-width:360px;margin-top:20px">${r.left||!r.players[1]?'':'<button onclick="rematch()">🔁 Chơi lại</button>'}<button class="sec" onclick="$(\'over\').classList.add(\'hide\')">Xem bàn cờ</button></div><button class="sec" style="margin-top:10px" onclick="leave()">🚪 Về sảnh</button>`;
+            o.classList.remove('hide');
+            fx(won ? 'win' : r.draw ? 'none' : 'lose');
+        }
+
+        function fx(type) {
+            if (type === 'none') return;
+            const c = $('fx'),
+                x = c.getContext('2d');
+            c.width = innerWidth;
+            c.height = innerHeight;
+            const cols = ['#ffd54a', '#ff5c9a', '#6bd0ff', '#7aff9a', '#fff'];
+            const P = Array.from({
+                length: type === 'win' ? 160 : 120
+            }, () => ({
+                x: Math.random() * c.width,
+                y: -Math.random() * c.height,
+                v: 2 + Math.random() * 5,
+                s: 4 + Math.random() * 8,
+                r: Math.random() * 6,
+                c: cols[(Math.random() * 5) | 0]
+            }));
+            (function f() {
+                if (!document.body.contains(c)) return;
+                x.clearRect(0, 0, c.width, c.height);
+                P.forEach(p => {
+                    p.y += type === 'win' ? p.v : p.v * 2.2;
+                    p.r += .1;
+                    if (p.y > c.height) {
+                        p.y = -10;
+                        p.x = Math.random() * c.width
+                    }
+                    if (type === 'win') {
+                        x.save();
+                        x.translate(p.x, p.y);
+                        x.rotate(p.r);
+                        x.fillStyle = p.c;
+                        x.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .6);
+                        x.restore()
+                    } else {
+                        x.strokeStyle = '#8a1b1b99';
+                        x.lineWidth = 2;
+                        x.beginPath();
+                        x.moveTo(p.x, p.y);
+                        x.lineTo(p.x - 2, p.y + p.s * 2);
+                        x.stroke()
+                    }
+                });
+                requestAnimationFrame(f);
+            })();
+        }
+
+        // ---------- Admin ----------
+        async function openAdmin() {
+            show('m-admin');
+            const d = await api('/api/admin/data');
+            if (!d.users) return;
+            $('adm').innerHTML = '<h4>Người chơi</h4>' + d.users.map(u => `<div style="border-bottom:1px solid #ffffff22;padding:6px 0">
+    <div class="ad" style="border:0">${av(u.avatar)}<span>${esc(u.name)}${u.admin?' 👑 (bạn)':''}</span>${u.admin?'':`<button data-n="${esc(u.name)}" onclick="if(confirm('Xóa tài khoản này? Không thể hoàn tác.'))adm('delete-user',this.dataset.n)">Xóa</button>`}</div>
+    <div class="ad" style="border:0">🔥 <input class="ni" type="number" min="0" value="${u.streak}" title="Chuỗi hiện tại"> Cao nhất <input class="ni" type="number" min="0" value="${u.best}" title="Chuỗi cao nhất"><button data-n="${esc(u.name)}" onclick="saveStreak(this)">Lưu</button></div></div>`).join('')
+   +'<h4>Phòng</h4>'+(d.rooms.length?d.rooms.map(r=>`<div class="ad"><span>#${r.code} · ${r.inf?'♾️':r.size+'x'+r.size} · ${r.status} · ${r.players.map(p=>p?esc(p.name):'-').join(' vs ')}</span><button onclick="adm('close-room','${r.code}',1)">Đóng</button></div>`).join(''):'<p>Không có phòng</p>');
+}
+async function saveStreak(btn){
+  const [a,b]=btn.parentElement.querySelectorAll('input');
+  const d=await api('/api/admin/set-streak',{name:btn.dataset.n,streak:a.value,best:b.value});
+  if(!d._ok){alert(d.error||'Lỗi');return}
+  await refreshMe();loadLb();openAdmin();
+}
+async function adm(act,v,isCode){await api('/api/admin/'+act,isCode?{code:v}:{name:v});openAdmin()}
+
+// ---------- Khởi động ----------
+(async()=>{
+  drawAvs();
+  try{
+    if(token){
+      const d=await api('/api/me');
+      if(d._net){showScreen('s-login');$('lerr').textContent=d.error;return}
+      if(d.me){me=d.me;
+        const rc=localStorage.room;
+        if(rc){const j=await api('/api/room/join',{code:rc});if(j._ok){enter(rc);return}}
+        toLobby();return}
+    }
+  }catch(e){console.error(e)}
+  showScreen('s-login');
+})();
+    </script>
+</body>
+
+</html>
